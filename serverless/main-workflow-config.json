@@ -1,0 +1,18 @@
+{
+  "task_routing": {
+    "default_filter": { "queue": "<DEFAULT_QUEUE_SID>" },
+    "filters": [
+      {
+        "filter_friendly_name": "Known Agent Routing",
+        "expression": "KnownAgentRoutingFlag == true",
+        "targets": [
+          {
+            "queue": "<DEFAULT_QUEUE_SID>",
+            "known_worker_sid": "task.KnownAgentWorkerSid",
+            "expression": "task.KnownAgentWorkerSid != null"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "plugin-whatsapp-outbound-serverless",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "twilio-run",
+    "deploy": "twilio-run deploy"
+  },
+  "dependencies": {
+    "@twilio/runtime-handler": "2.0.1",
+    "twilio": "^4.19.0",
+    "twilio-flex-token-validator": "^1.5.7"
+  },
+  "devDependencies": {
+    "twilio-run": "^3.5.4"
+  },
+  "engines": {
+    "node": "18"
+  }
+}

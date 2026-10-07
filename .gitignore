@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Secrets — copy the .env.example files instead
+.env
+.env.*
+!.env.example
+
+# Twilio CLI deploy state (account-specific)
+.twiliodeployinfo
+
+# Build output
+build/
+coverage/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

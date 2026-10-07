@@ -1,0 +1,39 @@
+{
+  "name": "plugin-whatsapp-outbound",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "prebuild": "rimraf build && flex-plugin pre-script-check",
+    "build": "flex-plugin build",
+    "clear": "flex-plugin clear",
+    "deploy": "flex-plugin deploy",
+    "eject": "flex-plugin eject",
+    "info": "flex-plugin info",
+    "list": "flex-plugin list",
+    "logs": "flex-plugin logs",
+    "prestart": "flex-plugin pre-start-check",
+    "release": "flex-plugin release",
+    "remove": "flex-plugin remove",
+    "start": "flex-plugin start",
+    "test": "flex-plugin test --env=jsdom",
+    "upgrade-plugin": "flex-plugin upgrade-plugin"
+  },
+  "dependencies": {
+    "@twilio/flex-plugin-scripts": "^7",
+    "@twilio/flex-ui": "^2",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "rimraf": "^3.0.2",
+    "twilio-sync": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.0",
+    "@types/react": "17.0.2",
+    "@types/react-dom": "17.0.2",
+    "typescript": "^4.9.5"
+  },
+  "engines": {
+    "node": ">=18",
+    "npm": ">=9"
+  }
+}

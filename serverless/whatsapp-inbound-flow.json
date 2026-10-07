@@ -1,0 +1,49 @@
+{
+  "description": "Inbound WhatsApp -> Flex chat task, honouring KnownAgent routing when set",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        { "event": "incomingMessage", "next": "SendMessageToFlex" },
+        { "event": "incomingCall" },
+        { "event": "incomingConversationMessage", "next": "SendConversationToFlex" },
+        { "event": "incomingRequest" },
+        { "event": "incomingParent" }
+      ],
+      "properties": {}
+    },
+    {
+      "name": "SendMessageToFlex",
+      "type": "send-to-flex",
+      "transitions": [
+        { "event": "callComplete" },
+        { "event": "failedToEnqueue" },
+        { "event": "callFailure" }
+      ],
+      "properties": {
+        "offset": { "x": 20, "y": 240 },
+        "workflow": "<TASKROUTER_WORKFLOW_SID>",
+        "channel": "<CHAT_TASK_CHANNEL_SID>",
+        "attributes": "{\"name\": \"{{trigger.message.From}}\", \"channelType\": \"whatsapp\", \"direction\": \"inbound\", \"customerAddress\": \"{{trigger.message.From}}\"}"
+      }
+    },
+    {
+      "name": "SendConversationToFlex",
+      "type": "send-to-flex",
+      "transitions": [
+        { "event": "callComplete" },
+        { "event": "failedToEnqueue" },
+        { "event": "callFailure" }
+      ],
+      "properties": {
+        "offset": { "x": 320, "y": 240 },
+        "workflow": "<TASKROUTER_WORKFLOW_SID>",
+        "channel": "<CHAT_TASK_CHANNEL_SID>",
+        "attributes": "{\"name\": \"{{trigger.conversation.Author}}\", \"channelType\": \"whatsapp\", \"direction\": \"inbound\", \"customerAddress\": \"{{trigger.conversation.Author}}\", \"conversationSid\": \"{{trigger.conversation.ConversationSid}}\", \"KnownAgentRoutingFlag\": {{trigger.conversation.ChannelAttributes.parsed.KnownAgentRoutingFlag | default: false}}, \"KnownAgentWorkerSid\": \"{{trigger.conversation.ChannelAttributes.parsed.KnownAgentWorkerSid}}\", \"initiatingWorkerName\": \"{{trigger.conversation.ChannelAttributes.parsed.initiatingWorkerName}}\"}"
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": { "allow_concurrent_calls": true }
+}
