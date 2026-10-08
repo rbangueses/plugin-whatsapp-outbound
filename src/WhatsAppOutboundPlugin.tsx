@@ -86,10 +86,10 @@ export default class WhatsAppOutboundPlugin extends FlexPlugin {
         || attrs.channelType === 'voice'
         || attrs.channelType === 'default';
       if (!isVoice) return false;
-      // Flex task status strings: 'assigned' (live) and 'wrapping' are the
+      // Flex UI task status strings: 'accepted' (live) and 'wrapping' are the
       // two we want. Reserved/pending/completed/canceled are excluded.
       const status = task.status || task.taskStatus;
-      return status === 'assigned' || status === 'wrapping';
+      return status === 'accepted' || status === 'wrapping';
     };
 
     flex.TaskCanvasTabs.Content.add(
