@@ -12,8 +12,13 @@ async function callFunction<T>(path: string, body: Record<string, unknown> = {})
     body: new URLSearchParams({ Token: token, ...(body as Record<string, string>) }),
   });
 
-  if (!res.ok) throw new Error(`${path} failed: ${res.status}`);
-  const data = await res.json();
+  let data: { error?: string } = {};
+  try {
+    data = await res.json();
+  } catch (_) {
+    // Preserve the status fallback below when a Function returns no JSON body.
+  }
+  if (!res.ok) throw new Error(data.error || `${path} failed: ${res.status}`);
   if ((data as { error?: string }).error) throw new Error((data as { error: string }).error);
   return data as T;
 }

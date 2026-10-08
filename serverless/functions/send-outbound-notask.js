@@ -38,8 +38,31 @@ exports.handler = async function (context, event, callback) {
   const proxyAddress = `whatsapp:${context.WHATSAPP_FROM}`;
   const workerName = (tokenResult && tokenResult.identity) || 'agent';
   const autoCloseAfter = context.AUTO_CLOSE_AFTER || 'P5D';
+  const alreadyOpenMessage =
+    'You already have a conversation open with this number. Check your open conversations.';
 
   try {
+    // Conversations permits only one non-closed binding for a customer/proxy
+    // address pair. Check before creating a conversation so a duplicate send
+    // produces a useful response without leaving an empty conversation behind.
+    const participantConversations = await client.conversations.v1
+      .participantConversations.list({ address: customerAddress, limit: 100 });
+    const existingConversation = participantConversations.find((item) => {
+      if (item.conversationState === 'closed') return false;
+      const binding = item.participantMessagingBinding || {};
+      const existingProxy = binding.proxy_address || binding.proxyAddress;
+      return String(existingProxy || '').toLowerCase() === proxyAddress.toLowerCase();
+    });
+    if (existingConversation) {
+      response.setStatusCode(409);
+      response.setBody({
+        error: alreadyOpenMessage,
+        code: 50416,
+        conversationSid: existingConversation.conversationSid,
+      });
+      return callback(null, response);
+    }
+
     const conversationAttrs = {
       direction: 'outbound',
       channelType: context.CHANNEL_TYPE || 'whatsapp',
@@ -113,8 +136,13 @@ exports.handler = async function (context, event, callback) {
       moreInfo: e.moreInfo,
       details: e.details,
     });
-    response.setStatusCode(500);
-    response.setBody({ error: e.message, code: e.code });
+    if (e.code === 50416) {
+      response.setStatusCode(409);
+      response.setBody({ error: alreadyOpenMessage, code: e.code });
+    } else {
+      response.setStatusCode(500);
+      response.setBody({ error: e.message, code: e.code });
+    }
     return callback(null, response);
   }
 };

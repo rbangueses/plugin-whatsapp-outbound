@@ -81,7 +81,7 @@ Record a run date / tester at the top of each pass so retests are easy to compar
 3. End the call. During the ~30-second wrap window `WhatsApp` tab stays visible.
 4. Complete the wrap. Task disappears → tab disappears with it.
 
-**Pass:** tab is visible only during `assigned` and `wrapping`.
+**Pass:** tab is visible only during `accepted` and `wrapping`.
 
 ### 2.2 Pre-fill is the customer, not the Twilio number
 
