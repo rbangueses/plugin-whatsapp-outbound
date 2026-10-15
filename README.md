@@ -2,7 +2,7 @@
 
 Twilio Flex 2.x plugin for agent-initiated WhatsApp outbound: pick an approved template, send to a customer, control how a reply is routed, park conversations, re-engage customers whose 24-hour window has closed, and track every open conversation per-agent or across the team.
 
-Scope is deliberately single-WABA. Supporting documents: [`ARCHITECTURE.md`](ARCHITECTURE.md) (reference for maintainers), [`TESTPLAN.md`](TESTPLAN.md) (manual QA), [`flex-whatsapp-outbound-blueprint.html`](flex-whatsapp-outbound-blueprint.html) (styled single-pager).
+Scope is deliberately single-WABA. Supporting documents: [`ARCHITECTURE.md`](ARCHITECTURE.md) (reference for maintainers), [`TESTPLAN.md`](TESTPLAN.md) (manual QA), [`flex-whatsapp-outbound-blueprint.html`](flex-whatsapp-outbound-blueprint.html#product-tour) (styled walkthrough with an annotated capability gallery).
 
 ## Feature overview
 
