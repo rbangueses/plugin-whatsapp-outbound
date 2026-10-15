@@ -519,6 +519,49 @@
       grid-row: 1 / span 2;
     }
 
+    .capability-gallery {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .capability-demo {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid #dce5f0;
+      border-radius: var(--radius);
+      background: #fbfdff;
+    }
+
+    .capability-demo.wide { grid-column: 1 / -1; }
+
+    .capability-demo a {
+      display: block;
+      background: #eef2f7;
+      border-bottom: 1px solid #dce5f0;
+    }
+
+    .capability-demo img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .capability-demo figcaption { padding: 20px; }
+
+    .capability-demo h3 { margin: 0 0 8px; }
+
+    .capability-demo p {
+      margin: 0;
+      color: #3a4658;
+      line-height: 1.55;
+    }
+
+    .capability-demo .tag { margin-bottom: 10px; }
+
     .table-wrap {
       width: 100%;
       margin: 16px 0 22px;
@@ -621,6 +664,9 @@
       .component-row.pair-row {
         grid-template-columns: 1fr;
       }
+
+      .capability-gallery { grid-template-columns: 1fr; }
+      .capability-demo.wide { grid-column: auto; }
     }
 
     @media (max-width: 720px) {
@@ -648,6 +694,7 @@
         <li><a href="#overview">Overview</a></li>
         <li><a href="#business-benefits">Business Benefits</a></li>
         <li><a href="#capabilities">Capabilities</a></li>
+        <li><a href="#product-tour">Product Tour</a></li>
         <li><a href="#architecture">Architecture</a></li>
         <li><a href="#send-modes">Send Modes</a></li>
         <li><a href="#park-reopen">Park &amp; Reopen</a></li>
@@ -777,6 +824,97 @@
                 <h3>Voice Task Companion Tab</h3>
                 <p>A <code>WhatsApp</code> tab appears next to <code>Call | Info</code> during a live call or wrap-up. The agent can send a template mid-call (link, confirmation, next step) or follow up when the customer didn't pick up; "To" is pre-populated from the task's caller or <code>outbound_to</code> depending on direction.</p>
               </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="product-tour">
+          <div class="section-header">
+            <p class="section-kicker whatsapp">Agent Experience</p>
+            <h2>Capabilities In The Agent Desktop</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              The same outbound workflow is available at the moment an agent needs it: during call wrap-up, as a
+              standalone proactive action, from the Open conversations list, or inside an active WhatsApp task. Select
+              any screenshot to open it at full resolution.
+            </p>
+            <div class="capability-gallery">
+              <figure class="capability-demo">
+                <a href="docs/images/capabilities/wrap-up-template.png" aria-label="Open the wrap-up template screenshot at full resolution">
+                  <img src="docs/images/capabilities/wrap-up-template.png" loading="lazy" alt="Flex voice task in wrap-up with the WhatsApp template composer open">
+                </a>
+                <figcaption>
+                  <span class="tag">Call wrap-up</span>
+                  <h3>Send A Follow-Up During Wrap-Up</h3>
+                  <p>
+                    The WhatsApp tab remains available beside Call and Info while the voice task is wrapping up. The
+                    customer number is pre-filled, and the agent can choose a template, complete its variables, preview
+                    the result, and decide how any reply should route.
+                  </p>
+                </figcaption>
+              </figure>
+
+              <figure class="capability-demo">
+                <a href="docs/images/capabilities/standalone-outbound-composer.png" aria-label="Open the standalone outbound composer screenshot at full resolution">
+                  <img src="docs/images/capabilities/standalone-outbound-composer.png" loading="lazy" alt="Standalone WhatsApp outbound composer in the Flex side navigation">
+                </a>
+                <figcaption>
+                  <span class="tag">Proactive outbound</span>
+                  <h3>Start Outbound Without An Active Call</h3>
+                  <p>
+                    The dedicated side-nav view lets an agent proactively contact a customer without an ongoing call or
+                    wrap-up task. The agent enters an E.164 number, selects an approved business-initiated template, and
+                    chooses whether to open chat immediately or defer routing until the customer replies.
+                  </p>
+                </figcaption>
+              </figure>
+
+              <figure class="capability-demo">
+                <a href="docs/images/capabilities/outbound-sent-open-conversation.png" aria-label="Open the sent conversation screenshot at full resolution">
+                  <img src="docs/images/capabilities/outbound-sent-open-conversation.png" loading="lazy" alt="Open conversations panel showing a sent outbound template and reopen with template action">
+                </a>
+                <figcaption>
+                  <span class="tag">Open conversations</span>
+                  <h3>Re-Engage With A Template</h3>
+                  <p>
+                    Every active outbound thread remains visible in Open conversations. When free text is not yet
+                    permitted or the 24-hour customer-service window has closed, the row offers Reopen with template so
+                    the agent can re-engage on the existing conversation rather than create a duplicate.
+                  </p>
+                </figcaption>
+              </figure>
+
+              <figure class="capability-demo">
+                <a href="docs/images/capabilities/open-conversation-replied.png" aria-label="Open the replied conversation screenshot at full resolution">
+                  <img src="docs/images/capabilities/open-conversation-replied.png" loading="lazy" alt="Open conversations panel showing a customer reply preview and reopen action">
+                </a>
+                <figcaption>
+                  <span class="tag">Customer replied</span>
+                  <h3>Reopen And Continue With Free Text</h3>
+                  <p>
+                    Once the customer replies, the row changes to Replied and displays a preview of the latest inbound
+                    message. Reopen returns the agent to the existing thread with its history intact; while the 24-hour
+                    window is open, the agent can continue using normal free-text messaging.
+                  </p>
+                </figcaption>
+              </figure>
+
+              <figure class="capability-demo wide">
+                <a href="docs/images/capabilities/active-whatsapp-conversation-park-controls.png" aria-label="Open the active conversation and park controls screenshot at full resolution">
+                  <img src="docs/images/capabilities/active-whatsapp-conversation-park-controls.png" loading="lazy" alt="Active Flex WhatsApp conversation with Park me, Park all, and End controls">
+                </a>
+                <figcaption>
+                  <span class="tag">Talk or park</span>
+                  <h3>Continue The Conversation Or Park It Safely</h3>
+                  <p>
+                    An active task uses the standard Flex chat experience, including the complete message history.
+                    When work needs to pause, Park (me) or Park (all) completes the current agent task while keeping the
+                    WhatsApp conversation open. The thread returns to Open conversations and can be resumed later
+                    without losing its history.
+                  </p>
+                </figcaption>
+              </figure>
             </div>
           </div>
         </section>
