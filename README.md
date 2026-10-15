@@ -2,7 +2,7 @@
 
 Twilio Flex 2.x plugin for agent-initiated WhatsApp outbound: pick an approved template, send to a customer, control how a reply is routed, park conversations, re-engage customers whose 24-hour window has closed, and track every open conversation per-agent or across the team.
 
-Scope is deliberately single-WABA. Supporting documents: [`ARCHITECTURE.md`](ARCHITECTURE.md) (reference for maintainers), [`TESTPLAN.md`](TESTPLAN.md) (manual QA), [`flex-whatsapp-outbound-blueprint.html`](flex-whatsapp-outbound-blueprint.html#product-tour) (styled walkthrough with an annotated capability gallery).
+Scope is deliberately single-WABA. Supporting documents: [`ARCHITECTURE.md`](ARCHITECTURE.md) (reference for maintainers), [`TESTPLAN.md`](TESTPLAN.md) (manual QA), [`flex-whatsapp-outbound-blueprint.html`](flex-whatsapp-outbound-blueprint.html#plugin-tour) (styled walkthrough with an annotated capability gallery).
 
 ## Feature overview
 
@@ -36,6 +36,38 @@ Scope is deliberately single-WABA. Supporting documents: [`ARCHITECTURE.md`](ARC
 
 **Configurability.**
 - Deployment knobs for the WA window hours, Sync token TTL, task channel name, side-nav label, team-view toggle, Park on/off, and default send mode. Full table in [`ARCHITECTURE.md` §Variables and configuration](ARCHITECTURE.md#variables-and-configuration).
+
+## Plugin tour
+
+### Send a follow-up during call wrap-up
+
+The WhatsApp tab remains available beside **Call** and **Info** while a voice task is wrapping up. The customer number is pre-filled, and the agent can select a template, complete its variables, preview the message, and choose how any reply should route.
+
+[![Flex voice task in wrap-up with the WhatsApp template composer open](docs/images/capabilities/wrap-up-template.png)](docs/images/capabilities/wrap-up-template.png)
+
+### Start outbound without an active call
+
+The dedicated side-nav view lets an agent proactively contact a customer without an ongoing call or wrap-up task. The agent enters an E.164 number, selects an approved business-initiated template, and chooses whether to open chat immediately or defer routing until the customer replies.
+
+[![Standalone WhatsApp outbound composer in the Flex side navigation](docs/images/capabilities/standalone-outbound-composer.png)](docs/images/capabilities/standalone-outbound-composer.png)
+
+### Re-engage an open conversation with a template
+
+Every active outbound thread remains visible in **Open conversations**. When free text is not yet permitted or the 24-hour customer-service window has closed, **Reopen with template** lets the agent re-engage on the existing conversation instead of creating a duplicate.
+
+[![Open conversations showing a sent template and Reopen with template](docs/images/capabilities/outbound-sent-open-conversation.png)](docs/images/capabilities/outbound-sent-open-conversation.png)
+
+### Reopen and continue with free text
+
+Once the customer replies, the row changes to **Replied** and shows a preview of the latest inbound message. **Reopen** returns the agent to the existing thread with its history intact; while the 24-hour window is open, normal free-text messaging is available.
+
+[![Open conversations showing a customer reply and Reopen action](docs/images/capabilities/open-conversation-replied.png)](docs/images/capabilities/open-conversation-replied.png)
+
+### Continue the conversation or park it safely
+
+An active task uses the standard Flex chat experience with the complete message history. **Park (me)** or **Park (all)** completes the current agent task while keeping the WhatsApp conversation open, allowing it to be resumed later without losing history.
+
+[![Active Flex WhatsApp conversation with Park me, Park all, and End controls](docs/images/capabilities/active-whatsapp-conversation-park-controls.png)](docs/images/capabilities/active-whatsapp-conversation-park-controls.png)
 
 ## Repository layout
 
