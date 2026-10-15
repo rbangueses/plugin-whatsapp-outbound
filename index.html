@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reference Architecture | Twilio Flex + WhatsApp Outbound</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #5e697c;
+      --quiet: #7a8494;
+      --line: #dce3ee;
+      --panel: #ffffff;
+      --page: #f4f7fb;
+      --soft: #eef4f9;
+      --nav: #111827;
+      --nav-muted: #aeb8c8;
+      --blue: #1d65d8;
+      --cyan: #0f7f91;
+      --green: #167c5b;
+      --amber: #a45c00;
+      --red: #b42318;
+      --twilio: #d61f2c;
+      --whatsapp: #25d366;
+      --shadow: 0 18px 60px rgba(23, 32, 51, 0.1);
+      --radius: 8px;
+      --content: 1160px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #eaf1f8 0, #f7f9fc 430px, var(--page) 100%);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    a { color: inherit; }
+
+    code {
+      border: 1px solid #d8e0ea;
+      border-radius: 5px;
+      background: #f8fafc;
+      color: #172033;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+      padding: 0.08rem 0.28rem;
+    }
+
+    .site-shell {
+      display: grid;
+      grid-template-columns: 290px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side-nav {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 22px;
+      overflow: auto;
+      background: var(--nav);
+      color: #f8fafc;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .nav-kicker {
+      margin-bottom: 22px;
+      color: var(--nav-muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .nav-title {
+      margin: 0 0 22px;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      font-weight: 750;
+    }
+
+    .nav-links {
+      display: grid;
+      gap: 4px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .nav-links a {
+      display: block;
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: #dbe3ef;
+      font-size: 0.92rem;
+      line-height: 1.3;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      outline: none;
+    }
+
+    .nav-meta {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--nav-muted);
+      font-size: 0.82rem;
+    }
+
+    main { min-width: 0; }
+
+    .hero { padding: 64px 42px 34px; }
+
+    .hero-inner,
+    .content {
+      width: min(var(--content), calc(100% - 84px));
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border: 1px solid #cdd8e6;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      color: #39506f;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      padding: 4px 10px;
+    }
+
+    .pill.twilio {
+      border-color: rgba(214, 31, 44, 0.25);
+      color: #8f1720;
+    }
+
+    .pill.whatsapp {
+      border-color: rgba(37, 211, 102, 0.4);
+      color: #0e5a2b;
+    }
+
+    h1 {
+      max-width: 980px;
+      margin: 0;
+      color: #111827;
+      font-size: clamp(2.25rem, 5vw, 5rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      gap: 34px;
+      align-items: end;
+      margin-top: 28px;
+    }
+
+    .lead {
+      margin: 0;
+      color: #334155;
+      font-size: 1.12rem;
+      line-height: 1.7;
+    }
+
+    .summary-panel {
+      border: 1px solid #d8e0ea;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: 0 12px 36px rgba(23, 32, 51, 0.08);
+      padding: 18px;
+    }
+
+    .summary-panel strong {
+      display: block;
+      margin-bottom: 10px;
+      color: #111827;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .summary-panel ul {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: #41516a;
+      font-size: 0.94rem;
+      line-height: 1.45;
+    }
+
+    .content { padding: 16px 0 72px; }
+
+    .section {
+      margin: 0 0 26px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .section-header { padding: 28px 30px 0; }
+
+    .section-kicker {
+      margin: 0 0 6px;
+      color: var(--blue);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .section-kicker.twilio { color: var(--twilio); }
+    .section-kicker.whatsapp { color: #0e5a2b; }
+
+    h2, h3 { letter-spacing: 0; }
+
+    h2 {
+      margin: 0;
+      color: #111827;
+      font-size: clamp(1.55rem, 3vw, 2.35rem);
+      line-height: 1.12;
+    }
+
+    h3 {
+      margin: 28px 0 8px;
+      color: #1f2937;
+      font-size: 1.16rem;
+      line-height: 1.25;
+    }
+
+    .section-body { padding: 20px 30px 30px; }
+
+    .section-body > p:first-child { margin-top: 0; }
+
+    .section-body p { color: #3a4658; }
+
+    .diagram-wrap {
+      margin: 18px 0 0;
+      border: 1px solid #dbe4f0;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #fbfdff, #f3f7fb);
+      padding: 22px;
+      overflow-x: auto;
+    }
+
+    .component-map {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .component-row {
+      display: grid;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .component-row.agent-row,
+    .component-row.triple-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .component-row.pair-row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .component-node {
+      border: 1px solid #dce5f0;
+      border-radius: var(--radius);
+      background: #ffffff;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(23, 32, 51, 0.04);
+    }
+
+    .component-node h3 {
+      margin: 8px 0 4px;
+      font-size: 1rem;
+    }
+
+    .component-node p {
+      margin: 0;
+      color: #3a4658;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .component-node.twilio {
+      border-color: #f2c8ce;
+      background: #fff7f8;
+    }
+
+    .component-node.backend {
+      border-color: #cbd7ff;
+      background: #f7f9ff;
+    }
+
+    .component-node.whatsapp {
+      border-color: #bfe9cd;
+      background: #f3fbf6;
+    }
+
+    .component-node.sync {
+      border-color: #c7e7e2;
+      background: #f4fbfa;
+    }
+
+    .component-node.taskrouter {
+      border-color: #f1d8aa;
+      background: #fffaf1;
+    }
+
+    .component-arrow {
+      display: grid;
+      place-items: center;
+      min-height: 22px;
+      color: #7b8798;
+      font-size: 0.82rem;
+      font-weight: 750;
+      text-align: center;
+    }
+
+    .component-arrow::before,
+    .component-arrow::after {
+      content: "";
+      display: block;
+      width: 1px;
+      height: 10px;
+      margin: 2px auto;
+      background: #b7c2d0;
+    }
+
+    .arch-label,
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 0.76rem;
+      font-weight: 750;
+      padding: 2px 8px;
+      white-space: nowrap;
+    }
+
+    .arch-label.flex {
+      background: #fff1f2;
+      color: #991b1b;
+    }
+
+    .arch-label.backend {
+      background: #eef2ff;
+      color: #3730a3;
+    }
+
+    .arch-label.whatsapp {
+      background: #e5f8ec;
+      color: #0e5a2b;
+    }
+
+    .arch-label.sync {
+      background: #eaf5f3;
+      color: #0f5d6b;
+    }
+
+    .arch-label.taskrouter {
+      background: #fff7ed;
+      color: #9a3412;
+    }
+
+    .pattern-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 18px 0 20px;
+      padding: 0;
+      list-style: none;
+      counter-reset: pattern;
+    }
+
+    .pattern-list li {
+      counter-increment: pattern;
+      position: relative;
+      border: 1px solid #dde6f1;
+      border-radius: var(--radius);
+      background: #fbfdff;
+      padding: 18px 16px 16px 48px;
+      color: #3b4656;
+      line-height: 1.45;
+    }
+
+    .pattern-list li::before {
+      content: counter(pattern);
+      position: absolute;
+      top: 16px;
+      left: 14px;
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #dbeafe;
+      color: #1d4ed8;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .callout {
+      border-left: 4px solid var(--cyan);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      background: #eef8fb;
+      color: #274454;
+      padding: 16px 18px;
+    }
+
+    .callout strong { color: #0f5d6b; }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: #fff8ef;
+      color: #563a1b;
+    }
+
+    .callout.warning strong { color: var(--amber); }
+
+    .callout.green {
+      border-left-color: var(--green);
+      background: #ecfaf2;
+      color: #0f4a30;
+    }
+
+    .callout.green strong { color: var(--green); }
+
+    .flow-grid,
+    .decision-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .decision-grid.two-up { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .production-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .three-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .flow-card,
+    .decision-card,
+    .production-card {
+      border: 1px solid #dce5f0;
+      border-radius: var(--radius);
+      background: #fbfdff;
+      padding: 18px;
+    }
+
+    .flow-card {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      column-gap: 14px;
+      align-items: start;
+    }
+
+    .flow-card h3,
+    .flow-card p { grid-column: 2; }
+
+    .flow-card h3,
+    .decision-card h3,
+    .production-card h3 { margin-top: 0; }
+
+    .flow-card p,
+    .decision-card p,
+    .production-card p { margin-bottom: 0; }
+
+    .flow-number {
+      display: inline-grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      margin-top: 2px;
+      border-radius: 50%;
+      background: #e8f1ff;
+      color: var(--blue);
+      font-weight: 800;
+      grid-row: 1 / span 2;
+    }
+
+    .table-wrap {
+      width: 100%;
+      margin: 16px 0 22px;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+      background: #ffffff;
+      font-size: 0.94rem;
+    }
+
+    th, td {
+      padding: 13px 15px;
+      border-bottom: 1px solid #e5ebf3;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f3f6fa;
+      color: #243047;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .checklist {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 18px 0 0;
+      padding: 0;
+      color: #3a4658;
+      list-style: none;
+      counter-reset: checklist;
+    }
+
+    .checklist li {
+      counter-increment: checklist;
+      position: relative;
+      border: 1px solid #dde6f1;
+      border-radius: var(--radius);
+      background: #fbfdff;
+      padding: 16px 16px 16px 50px;
+      line-height: 1.45;
+    }
+
+    .checklist li::before {
+      content: counter(checklist);
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #dbeafe;
+      color: #1d4ed8;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .footer-note {
+      width: min(var(--content), calc(100% - 84px));
+      margin: 0 auto;
+      padding: 0 0 52px;
+      color: var(--quiet);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    @media (max-width: 1040px) {
+      .site-shell { grid-template-columns: 1fr; }
+
+      .side-nav {
+        position: static;
+        height: auto;
+        padding: 18px 24px;
+      }
+
+      .nav-links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .nav-meta { display: none; }
+      .hero { padding-top: 46px; }
+
+      .hero-copy,
+      .production-grid,
+      .three-grid,
+      .decision-grid.two-up,
+      .component-row.agent-row,
+      .component-row.triple-row,
+      .component-row.pair-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body { font-size: 15px; }
+      .hero { padding: 34px 18px 22px; }
+
+      .hero-inner,
+      .content,
+      .footer-note { width: calc(100% - 36px); }
+
+      .section-header,
+      .section-body { padding-left: 18px; padding-right: 18px; }
+
+      .nav-links { grid-template-columns: 1fr; }
+      .flow-card { grid-template-columns: 38px minmax(0, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="site-shell">
+    <aside class="side-nav" aria-label="Document navigation">
+      <div class="nav-kicker">Reference Architecture</div>
+      <h2 class="nav-title">Twilio Flex + WhatsApp Outbound</h2>
+      <ol class="nav-links">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#business-benefits">Business Benefits</a></li>
+        <li><a href="#capabilities">Capabilities</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#send-modes">Send Modes</a></li>
+        <li><a href="#park-reopen">Park &amp; Reopen</a></li>
+        <li><a href="#window">24h Window Guard</a></li>
+        <li><a href="#tracking">Tracking Model</a></li>
+        <li><a href="#decisions">Design Decisions</a></li>
+        <li><a href="#configurability">Configurability</a></li>
+        <li><a href="#checklist">Production Checklist</a></li>
+        <li><a href="#endpoints">Reference Endpoints</a></li>
+      </ol>
+      <div class="nav-meta">
+        A blueprint for agent-initiated WhatsApp templates in Twilio Flex, with deferred-task routing, parked conversations, 24-hour window enforcement, and per-agent and team visibility.
+      </div>
+    </aside>
+
+    <main>
+      <header class="hero" id="overview">
+        <div class="hero-inner">
+          <div class="eyebrow">
+            <span class="pill twilio">Twilio Flex</span>
+            <span class="pill whatsapp">WhatsApp Business</span>
+            <span class="pill">Outbound Templates</span>
+            <span class="pill">Deferred Task Routing</span>
+            <span class="pill">Park &amp; Reopen</span>
+          </div>
+          <h1>Agent-Initiated WhatsApp Outbound For Flex</h1>
+          <div class="hero-copy">
+            <p class="lead">
+              A reference architecture for giving Flex agents a first-class WhatsApp outbound workflow: pick an approved
+              template, pre-populate recipients from the active task, choose how a reply should route, and keep every
+              open conversation visible in a side-nav panel so no customer thread quietly disappears.
+            </p>
+            <div class="summary-panel" aria-label="Blueprint summary">
+              <strong>Business outcomes</strong>
+              <ul>
+                <li>Agents can reach customers who did not pick up a call</li>
+                <li>Replies route back without manual re-assignment</li>
+                <li>Fewer orphaned conversations, visible to the whole team</li>
+                <li>24-hour WhatsApp window is enforced, not accidentally broken</li>
+              </ul>
+            </div>
+          </div>
+          <div style="margin-top: 22px;" class="callout warning">
+            <strong>Why not just use the chat composer?</strong> Flex's chat canvas works once a conversation already exists,
+            but it does not handle template picking, variable substitution, deferred-task routing policies, or re-engaging
+            customers whose 24-hour window has closed. This blueprint fills those gaps while keeping Flex, TaskRouter, and
+            Conversations as the system of record.
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="section" id="business-benefits">
+          <div class="section-header">
+            <p class="section-kicker twilio">Why It Matters</p>
+            <h2>Business Benefits</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              Outbound WhatsApp is often an afterthought in a Flex deployment: inbound traffic works because Studio and
+              the Interactions API handle it, but reaching a customer first — especially after a missed call — is a
+              manual, error-prone chore. This blueprint turns that into a one-click agent action with proper governance.
+            </p>
+            <div class="decision-grid two-up">
+              <article class="decision-card">
+                <h3>Reach Customers Who Didn't Pick Up</h3>
+                <p>Agents can send a WhatsApp template directly from the active task context, with the customer's number pre-populated.</p>
+              </article>
+              <article class="decision-card">
+                <h3>Route Replies Deterministically</h3>
+                <p>Pick at send time whether a reply should come back to the original agent or hit the queue — enforced by the TaskRouter workflow.</p>
+              </article>
+              <article class="decision-card">
+                <h3>No Lost Conversations</h3>
+                <p>A side-nav panel shows every conversation an agent currently owns, plus a toggle to see the team's open conversations.</p>
+              </article>
+              <article class="decision-card">
+                <h3>Guarded 24-Hour Window</h3>
+                <p>A service pre-webhook blocks free-text sends outside the WhatsApp session window and prompts the agent to send a template to re-engage instead.</p>
+              </article>
+            </div>
+            <p class="callout">
+              <strong>Pragmatic scope:</strong> this is a Flex-side agent workflow, not a replacement for Meta's Business Suite.
+              The plugin handles the agent-critical moments; WhatsApp Business Platform and Twilio Conversations remain the
+              system of record for messages and templates.
+            </p>
+          </div>
+        </section>
+
+        <section class="section" id="capabilities">
+          <div class="section-header">
+            <p class="section-kicker whatsapp">What It Does</p>
+            <h2>Capabilities</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              The plugin surfaces as a dedicated side-nav tab in Flex, between Agent Desktop and Teams. Everything an
+              agent needs to initiate, re-engage, and track outbound WhatsApp lives on that tab, with Park controls
+              appearing on the active task canvas.
+            </p>
+            <div class="decision-grid two-up">
+              <article class="decision-card">
+                <h3>Template Picker</h3>
+                <p>Lists approved WhatsApp templates from the Content API. Variable inputs render per template; a live preview updates as the agent types.</p>
+              </article>
+              <article class="decision-card">
+                <h3>Three Send Modes</h3>
+                <p>Send &amp; open chat (immediate task), Send + reply to me (deferred task reserved for sender), or Send + reply to queue (deferred task, no first-refusal).</p>
+              </article>
+              <article class="decision-card">
+                <h3>Open Conversations Panel</h3>
+                <p>Real-time Sync-backed list of the agent's active conversations with status, last reply preview, and Reopen or Reopen-with-template actions.</p>
+              </article>
+              <article class="decision-card">
+                <h3>Park (me) / Park (all)</h3>
+                <p>Buttons on the task canvas complete the task but keep the conversation open. Agent picks reply routing policy at park time.</p>
+              </article>
+              <article class="decision-card">
+                <h3>Reopen With Template</h3>
+                <p>For conversations outside the 24h window, the plugin pre-populates the composer with the customer address and reuses the existing conversation on send.</p>
+              </article>
+              <article class="decision-card">
+                <h3>24h Window Toast</h3>
+                <p>If an agent attempts free-text outside the window, the send is blocked server-side and a toast offers to park and re-engage with a template.</p>
+              </article>
+              <article class="decision-card">
+                <h3>Voice Task Companion Tab</h3>
+                <p>A <code>WhatsApp</code> tab appears next to <code>Call | Info</code> during a live call or wrap-up. The agent can send a template mid-call (link, confirmation, next step) or follow up when the customer didn't pick up; "To" is pre-populated from the task's caller or <code>outbound_to</code> depending on direction.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="architecture">
+          <div class="section-header">
+            <p class="section-kicker">System View</p>
+            <h2>Architecture At A Glance</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              The plugin lives inside the Flex Agent Desktop and surfaces four distinct UI entry points. Routing policy
+              and WhatsApp 24-hour window enforcement run in Twilio Functions, out of the browser. Twilio Sync is the
+              real-time surface for the Open conversations panel; adding a longer-term database is an obvious production
+              addition (see the production checklist).
+            </p>
+            <div class="diagram-wrap">
+              <div class="component-map" aria-label="Component relationship diagram">
+                <div class="component-row pair-row">
+                  <article class="component-node twilio">
+                    <span class="arch-label flex">Twilio Flex</span>
+                    <h3>Agent Desktop</h3>
+                    <p>Standard Flex 2.x host. Extensible with plugins that add views, task-canvas controls, side-nav items, and notification listeners.</p>
+                  </article>
+                  <article class="component-node twilio">
+                    <span class="arch-label flex">Flex Plugin</span>
+                    <h3>plugin-whatsapp-outbound</h3>
+                    <p>One plugin, four UI surfaces inside Flex:</p>
+                    <ul style="margin: 8px 0 0 1.15rem; padding: 0; color: #3a4658; font-size: 0.92rem; line-height: 1.45;">
+                      <li><strong>Side-nav tab</strong> — template composer + Open conversations list.</li>
+                      <li><strong>Voice task canvas tab</strong> — same composer during a call or wrap-up.</li>
+                      <li><strong>Task-canvas buttons</strong> — Park (me) / Park (all) on active WA chat tasks.</li>
+                      <li><strong>Notifications wrapper</strong> — intercepts WA send-fail toasts and prompts re-engagement.</li>
+                    </ul>
+                  </article>
+                </div>
+                <div class="component-arrow">HTTPS; every endpoint validates the caller's Flex JWT</div>
+                <div class="component-row pair-row">
+                  <article class="component-node backend">
+                    <span class="arch-label backend">Twilio Functions</span>
+                    <h3>Backend API</h3>
+                    <p>Flex-token-gated endpoints: list templates, send-with-task, send-no-task, reopen, park, verify-active, Sync token mint.</p>
+                  </article>
+                  <article class="component-node backend">
+                    <span class="arch-label backend">Twilio Webhooks</span>
+                    <h3>Lifecycle + Pre-Webhook Handlers</h3>
+                    <p>Service pre-webhook enforces the 24h window on every outbound message; a per-conversation lifecycle webhook spawns tasks on first reply and deletes Sync rows when conversations close.</p>
+                  </article>
+                </div>
+                <div class="component-arrow">Reads &amp; writes against Twilio platform APIs</div>
+                <div class="component-row triple-row">
+                  <article class="component-node whatsapp">
+                    <span class="arch-label whatsapp">Conversations</span>
+                    <h3>Conversations + Content API</h3>
+                    <p>Owns messages, participants, scoped webhooks, and the WhatsApp 24h session semantics. Templates listed via v2 ContentAndApprovals.</p>
+                  </article>
+                  <article class="component-node taskrouter">
+                    <span class="arch-label taskrouter">TaskRouter</span>
+                    <h3>Workflow + Known Agent Filter</h3>
+                    <p>"Main" workflow adds a Known Agent Routing filter targeting <code>task.KnownAgentWorkerSid</code>. The baseline filter has no fallback expression — if the original agent is offline the task stays pending (no reservation is created until the targeted worker is Available) and is cleared by TaskRouter's own task timeout. Add a fallback expression in your workflow if you need queue overflow.</p>
+                  </article>
+                  <article class="component-node sync">
+                    <span class="arch-label sync">Twilio Sync</span>
+                    <h3>Per-Agent + Team Maps</h3>
+                    <p>Per-worker map and a shared team map; items keyed by conversation SID; real-time push to the plugin via the Sync JS SDK.</p>
+                  </article>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="send-modes">
+          <div class="section-header">
+            <p class="section-kicker whatsapp">Routing Policies</p>
+            <h2>The Three Send Modes</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              Every outbound send is one of three modes. The mode is written to conversation attributes at send time and
+              re-read by the lifecycle webhook when the customer replies, which decides how to spawn the resulting task.
+            </p>
+            <div class="three-grid">
+              <article class="decision-card">
+                <h3>Send &amp; Open Chat</h3>
+                <p>Immediate chat task on the sender's desktop. Uses the Interactions API with <code>worker_sid</code>, so the sender gets a direct reservation. <strong>Free-text is still blocked by the 24-hour window pre-webhook until the customer replies</strong> — the agent can send further templates in the meantime, and the chat composer unlocks the moment an inbound message lands.</p>
+              </article>
+              <article class="decision-card">
+                <h3>Send — Reply To Me</h3>
+                <p>No task on send. On customer reply, the lifecycle webhook sets <code>KnownAgentRoutingFlag</code> and routes via the workflow filter back to the sender.</p>
+              </article>
+              <article class="decision-card">
+                <h3>Send — Reply To Queue</h3>
+                <p>No task on send. On reply, a raw TaskRouter task is created without <code>worker_sid</code>, letting the workflow route it to any available agent in the queue.</p>
+              </article>
+            </div>
+            <p class="callout green">
+              <strong>Fallback policy is per-business:</strong> the plugin ships with a straight-forward Known Agent filter.
+              Production deployments can extend the workflow with timeout-based fallbacks, skills, or availability expressions
+              without touching plugin code.
+            </p>
+          </div>
+        </section>
+
+        <section class="section" id="park-reopen">
+          <div class="section-header">
+            <p class="section-kicker whatsapp">Lifecycle</p>
+            <h2>Park And Reopen</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              Parking lets an agent step away from a conversation without ending it: the Flex task is completed and the
+              row returns to the Open conversations panel, but the Twilio conversation stays <code>active</code> and the
+              Interaction channel stays bound. On the next customer reply (or an explicit reopen) a new task is reserved
+              via <code>channels.invites.create</code> on the existing channel — no new conversation, no history loss.
+            </p>
+            <ol class="pattern-list">
+              <li>
+                <strong>Park closes the agent participant, not the channel.</strong> Closing the channel would cascade
+                to closing the conversation; closing the participant completes the task without that side-effect.
+              </li>
+              <li>
+                <strong>Reopen reuses the existing Interaction channel.</strong> The Flex Invites API takes workflow +
+                attributes but rejects both <code>worker_sid</code> and <code>queue_sid</code> — agent targeting goes
+                through task attributes read by the workflow filter.
+              </li>
+              <li>
+                <strong>Reopen-with-template picks the Outbound tab back up.</strong> When the 24h window has closed or
+                the customer never replied, the plugin pre-populates the composer with the customer address and the
+                existing conversation SID so the send reuses the same thread.
+              </li>
+              <li>
+                <strong>Inbound-first conversations are backfilled on park.</strong> Studio-created conversations lack
+                plugin attributes; park detects this, derives the customer address from the participant, attaches the
+                lifecycle webhook, and lifts the conversation into the Open conversations panel.
+              </li>
+            </ol>
+          </div>
+        </section>
+
+        <section class="section" id="window">
+          <div class="section-header">
+            <p class="section-kicker whatsapp">Policy Guard</p>
+            <h2>24-Hour Window Enforcement</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              WhatsApp allows free-text responses only within 24 hours of the customer's last inbound message. Outside
+              that window, only pre-approved templates are permitted. The plugin enforces this at the service pre-webhook
+              layer so an agent cannot accidentally bill a customer-service message as a template send.
+            </p>
+            <div class="flow-grid">
+              <article class="flow-card">
+                <span class="flow-number">1</span>
+                <h3>Agent types free-text in the chat canvas</h3>
+                <p>Flex calls the Conversations API. The service's pre-webhook on <code>onMessageAdd</code> fires before the message is persisted.</p>
+              </article>
+              <article class="flow-card">
+                <span class="flow-number">2</span>
+                <h3>Pre-webhook evaluates the WA window</h3>
+                <p>Fast-paths: non-WA, inbound, templates (ContentSid present), and non-plugin conversations pass through unmodified. For WA free-text, the webhook reads <code>lastReplyAt</code> from Sync.</p>
+              </article>
+              <article class="flow-card">
+                <span class="flow-number">3</span>
+                <h3>Reject with wa_window_closed</h3>
+                <p>If no reply has ever been recorded or the last reply is &gt; 24h ago, the webhook returns HTTP 403 with a structured reason code. The message is never sent.</p>
+              </article>
+              <article class="flow-card">
+                <span class="flow-number">4</span>
+                <h3>Plugin intercepts the Flex send-fail notification</h3>
+                <p>A notification wrapper detects any send-fail toast whose task is a WhatsApp conversation and surfaces our own prompt: <em>Reply to me</em> / <em>Reply to queue</em>.</p>
+              </article>
+              <article class="flow-card">
+                <span class="flow-number">5</span>
+                <h3>Agent picks a reply mode</h3>
+                <p>Agent picks a routing mode; the plugin parks the current task with that mode, stashes a reopen context, and navigates to the Outbound tab with the customer address pre-filled.</p>
+              </article>
+            </div>
+            <p class="callout warning">
+              <strong>Error handling is three-way, not uniformly permissive:</strong> transient Sync failures (5xx, network, auth)
+              let the send through so an infra blip doesn't block valid traffic; a missing <code>SYNC_SERVICE_SID</code> returns
+              a 500 so a deploy issue surfaces immediately; a missing Sync row is treated as "customer never replied" and the
+              send is rejected. The lifecycle webhook upserts the Sync row on 404, so a dropped send-time write is self-healing
+              as soon as the first delivery or reply event lands.
+            </p>
+          </div>
+        </section>
+
+        <section class="section" id="tracking">
+          <div class="section-header">
+            <p class="section-kicker whatsapp">State Model</p>
+            <h2>Tracking: Sync Today, Database Tomorrow</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              Each agent has a per-worker Sync Map keyed by conversation SID; a shared team map mirrors every entry for
+              the "All agents" toggle. The plugin subscribes to the maps via the Sync JS SDK and renders a live list with
+              status, last reply preview, and action buttons.
+            </p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>Set By</th>
+                    <th>Purpose</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>conversationSid</code></td>
+                    <td>send function</td>
+                    <td>Row key; also echoed into the body for convenience.</td>
+                  </tr>
+                  <tr>
+                    <td><code>to</code>, <code>templateSid</code>, <code>templateName</code>, <code>sentAt</code>, <code>mode</code></td>
+                    <td>send function; <code>to</code> and <code>mode</code> can be updated on park</td>
+                    <td>Facts about the current state of the row. <code>mode</code> reflects the policy for the next reply (changes if an agent parks with a different routing choice); <code>to</code> is backfilled from the participant when a Studio-created inbound conversation is parked.</td>
+                  </tr>
+                  <tr>
+                    <td><code>status</code></td>
+                    <td>lifecycle webhook</td>
+                    <td>Transitions through <code>sent → delivered → read → replied</code>, plus <code>parked</code>, <code>failed</code>, <code>undelivered</code>.</td>
+                  </tr>
+                  <tr>
+                    <td><code>lastReplyAt</code>, <code>lastReplyPreview</code></td>
+                    <td>lifecycle webhook (<code>onMessageAdded</code>)</td>
+                    <td>Powers the 24h window check and the "last message" line in the row.</td>
+                  </tr>
+                  <tr>
+                    <td><code>initiatingWorkerSid</code>, <code>initiatingWorkerName</code></td>
+                    <td>send function + park (owner transfer)</td>
+                    <td>Current owner. Changes on park when parker is not the original sender.</td>
+                  </tr>
+                  <tr>
+                    <td><code>parkedAt</code>, <code>parkedByWorkerSid</code>, <code>parkedByWorkerName</code></td>
+                    <td>park</td>
+                    <td>Audit trail. Rendered inline on parked rows.</td>
+                  </tr>
+                  <tr>
+                    <td><code>flexInteractionSid</code>, <code>flexInteractionChannelSid</code></td>
+                    <td>send function / lifecycle (first time)</td>
+                    <td>Persisted on <strong>conversation attributes</strong> so unpark and reopen can reuse the same Interaction channel via <code>channels.invites.create</code>. Not written to Sync.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p>
+              Rows are deleted when the conversation closes, via <code>onConversationStateUpdated</code>. A reconciliation
+              endpoint (<code>/verify-active</code>) sweeps on panel mount to clean up any drift from missed webhooks.
+            </p>
+          </div>
+        </section>
+
+        <section class="section" id="decisions">
+          <div class="section-header">
+            <p class="section-kicker twilio">Trade-Offs</p>
+            <h2>Key Design Decisions</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              The choices below shape how the plugin behaves across routing, lifecycle, and policy. Each card
+              describes what the plugin does and why that decision was made.
+            </p>
+            <div class="decision-grid two-up">
+              <article class="decision-card">
+                <h3>Routing Replies Back To The Original Agent</h3>
+                <p>Replies are routed via a declarative TaskRouter workflow filter that reads the sender's worker ID from task attributes. Keeps the routing policy in one place and matches TaskRouter's native model. The baseline filter has no built-in fallback — add a timeout + overflow queue in the workflow definition if your deployment needs one.</p>
+              </article>
+              <article class="decision-card">
+                <h3>Parking Without Ending The Conversation</h3>
+                <p>Park removes the agent from the Flex Interaction while leaving the underlying Twilio conversation active. The task is completed but the conversation stays available for a future reply or an explicit reopen, preserving history.</p>
+              </article>
+              <article class="decision-card">
+                <h3>Reusing The Same Conversation On Reopen</h3>
+                <p>Reopening a parked or stale conversation adds a new agent to the existing Interaction rather than creating a new one. The customer sees one continuous conversation, and the agent lands on the full history on their desktop.</p>
+              </article>
+              <article class="decision-card">
+                <h3>"Reply To Queue" Without First-Refusal</h3>
+                <p>When the agent chooses "reply to queue," the resulting task is created without any specific worker reserved first. Any available agent in the queue can accept, with the conversation context carried on the task so the chat panel renders correctly on acceptance.</p>
+              </article>
+              <article class="decision-card">
+                <h3>Enforcing WhatsApp's 24-Hour Window</h3>
+                <p>WhatsApp blocks free-text sends more than 24 hours after the customer's last inbound message. A Twilio-side check enforces the window on every outbound message so an agent can't accidentally violate policy, with inexpensive short-circuits for traffic the plugin doesn't own.</p>
+              </article>
+              <article class="decision-card">
+                <h3>Catching The Failed Send In The UI</h3>
+                <p>When the 24-hour check rejects a send, Flex shows a generic failure toast. The plugin replaces that toast with a specific prompt — "send a template to re-engage?" — so the agent gets a clear next action instead of an unexplained error.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="configurability">
+          <div class="section-header">
+            <p class="section-kicker">Deployment Knobs</p>
+            <h2>Configurability</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              Every value a deployment is likely to change at install time is exposed as an environment variable.
+              Workflow routing rules and template content stay out of env — those live in TaskRouter and the Content
+              Template Builder respectively. The 24-hour window itself is configurable via <code>WA_WINDOW_HOURS</code>
+              but defaults to the standard WhatsApp Customer Service Window of 24 hours.
+            </p>
+            <h3>Serverless (<code>serverless/.env</code>)</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Variable</th>
+                    <th>Default</th>
+                    <th>Purpose</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>AUTO_CLOSE_AFTER</code></td>
+                    <td><code>P5D</code></td>
+                    <td>ISO 8601 duration passed as <code>Timers.Closed</code> on every conversation. Resets on activity. Twilio enforces a 10-minute minimum.</td>
+                  </tr>
+                  <tr>
+                    <td><code>WA_WINDOW_HOURS</code></td>
+                    <td><code>24</code></td>
+                    <td>Threshold the pre-webhook uses to block free-text sends. Change only if your messaging policy diverges from Meta's standard Customer Service Window.</td>
+                  </tr>
+                  <tr>
+                    <td><code>SYNC_TOKEN_TTL_SECONDS</code></td>
+                    <td><code>3600</code></td>
+                    <td>Lifetime of Sync access tokens minted for the plugin. Short = tighter rotation; long = fewer token mints.</td>
+                  </tr>
+                  <tr>
+                    <td><code>TASK_CHANNEL_NAME</code></td>
+                    <td><code>chat</code></td>
+                    <td>TaskRouter channel used when creating chat tasks. Only change if your workspace defines a custom channel.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <h3>Plugin build-time (<code>plugin-whatsapp-outbound/.env</code>, <code>FLEX_APP_*</code>)</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Variable</th>
+                    <th>Default</th>
+                    <th>Purpose</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>FLEX_APP_FUNCTIONS_BASE_URL</code></td>
+                    <td>—</td>
+                    <td>URL of the deployed serverless; required.</td>
+                  </tr>
+                  <tr>
+                    <td><code>FLEX_APP_SIDE_NAV_LABEL</code></td>
+                    <td><code>WhatsApp Outbound</code></td>
+                    <td>Label shown on the Flex side-nav item.</td>
+                  </tr>
+                  <tr>
+                    <td><code>FLEX_APP_ENABLE_TEAM_VIEW</code></td>
+                    <td><code>true</code></td>
+                    <td>Expose the "All agents" toggle in the Open conversations panel. Set <code>false</code> for privacy-sensitive deployments.</td>
+                  </tr>
+                  <tr>
+                    <td><code>FLEX_APP_ENABLE_PARK</code></td>
+                    <td><code>true</code></td>
+                    <td>Expose Park (me) / Park (all) on the task canvas. Set <code>false</code> for fire-and-forget deployments; Flex's native End button stays in place.</td>
+                  </tr>
+                  <tr>
+                    <td><code>FLEX_APP_DEFAULT_SEND_MODE</code></td>
+                    <td><code>open-chat</code></td>
+                    <td>Which of the three send-mode buttons sits first in the composer. Agents can still pick any of the three per send.</td>
+                  </tr>
+                  <tr>
+                    <td><code>FLEX_APP_WA_WINDOW_HOURS</code></td>
+                    <td><code>24</code></td>
+                    <td>UI threshold used to decide "Reopen" vs "Reopen with template" on each row. Must match the serverless <code>WA_WINDOW_HOURS</code> or UI and policy drift.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="callout warning">
+              <strong>Intentionally not exposed:</strong> the pre-webhook on/off switch and workflow fallback rules.
+              Letting a deployment turn the 24h guard off invites Meta-policy violations; routing logic belongs in
+              TaskRouter workflow filters, not plugin env vars.
+            </p>
+          </div>
+        </section>
+
+        <section class="section" id="checklist">
+          <div class="section-header">
+            <p class="section-kicker">Shipping It</p>
+            <h2>Production Readiness Checklist</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              The reference implementation is deployment-ready as a POC and demo. The items below are the realistic
+              hardening work before using it at scale with real customer traffic.
+            </p>
+            <ol class="checklist">
+              <li>
+                <strong>Move tracking off Sync-only.</strong> Add a database write alongside the Sync write for reporting
+                and cross-agent search. Sync works for the real-time per-agent view and should stay; adding a Postgres
+                or DynamoDB write to the same Functions is a small change that unlocks aggregate queries.
+              </li>
+              <li>
+                <strong>Scope the team view by Flex role.</strong> "All agents" is open to every agent today. Gate server-side
+                by Flex role (<code>admin</code> / <code>supervisor</code>) and route queries through the backend rather
+                than exposing per-agent Sync maps directly.
+              </li>
+              <li>
+                <strong>Add webhook retry / DLQ.</strong> If the lifecycle webhook fails once, the task is never created
+                and nothing retries. Introduce an outbox table, exponential retry, or Twilio Event Streams forwarding so
+                missed events are caught and replayed.
+              </li>
+              <li>
+                <strong>Tune the TaskRouter workflow per business.</strong> The baseline Known Agent filter has no
+                fallback expression. Production workflows typically add a timeout, availability check, or skills-based
+                fallback before dropping to the default queue.
+              </li>
+              <li>
+                <strong>Treat the pre-webhook as shared infrastructure.</strong> It fires for every message in the Flex
+                Conversations service. Benchmark it under production load, add structured logging, and consider owning
+                it from a longer-lived service rather than a serverless function if cold-start latency is a concern.
+              </li>
+              <li>
+                <strong>Observability.</strong> Pipe serverless logs to a sink that supports search and alerting
+                (Twilio Event Streams → Kinesis/EventBridge or a direct push to Datadog). Add success logs — the current
+                functions log on error only, which makes debugging ambiguous.
+              </li>
+              <li>
+                <strong>End-to-end tests.</strong> No automated tests exist. The Functions in particular should have a
+                suite exercising each send mode, park transition, and 24h window boundary.
+              </li>
+              <li>
+                <strong>Secrets handling.</strong> API Key secret lives in the Functions environment. For production,
+                rotate via infrastructure-as-code and consider a managed secret store (AWS Secrets Manager, GCP Secret
+                Manager) if the deployment is multi-tenant.
+              </li>
+              <li>
+                <strong>Harden the window UX.</strong> The toast fires on any WA send failure, not strictly on
+                <code>wa_window_closed</code> (the error body is stripped by the time it reaches the browser). Tighten
+                the match when Flex surfaces the richer error payload, or add a secondary fetch to confirm before
+                prompting.
+              </li>
+            </ol>
+          </div>
+        </section>
+
+        <section class="section" id="endpoints">
+          <div class="section-header">
+            <p class="section-kicker">API Surface</p>
+            <h2>Reference Endpoints</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              All plugin-facing endpoints are Flex-token-gated. <code>/conversation-lifecycle</code> is
+              <code>.protected.js</code>, so the Serverless runtime verifies Twilio's request signature on every
+              invocation. <code>/wa-window-pre-webhook</code> is not currently signature-validated — a production
+              hardening would rename it to <code>.protected.js</code> or add explicit signature verification in-handler.
+            </p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Endpoint</th>
+                    <th>Called By</th>
+                    <th>Responsibility</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>/list-templates</code></td>
+                    <td>Plugin on tab mount</td>
+                    <td>Fetches approved WhatsApp templates from the Content API (v2 ContentAndApprovals) and extracts variable keys.</td>
+                  </tr>
+                  <tr>
+                    <td><code>/send-outbound-template</code></td>
+                    <td>Plugin (Send &amp; open chat)</td>
+                    <td>Creates conversation, participant, lifecycle webhook, template message, and a Flex Interaction with worker_sid targeting the sender.</td>
+                  </tr>
+                  <tr>
+                    <td><code>/send-outbound-notask</code></td>
+                    <td>Plugin (Reply to me / Reply to queue)</td>
+                    <td>Creates conversation + template; sets <code>sendMode</code> on conversation attrs. No task yet — the lifecycle webhook spawns it on first reply.</td>
+                  </tr>
+                  <tr>
+                    <td><code>/reopen-conversation</code></td>
+                    <td>Plugin (Reopen button)</td>
+                    <td>Creates a Flex task against the existing conversation. Reuses the Interaction channel via <code>channels.invites.create</code>.</td>
+                  </tr>
+                  <tr>
+                    <td><code>/park-conversation</code></td>
+                    <td>Plugin (Park buttons, window-closed toast)</td>
+                    <td>Closes the agent participant, updates conversation attrs with the chosen reply mode, moves the Sync row to the parker, refreshes Timers.Closed.</td>
+                  </tr>
+                  <tr>
+                    <td><code>/verify-active</code></td>
+                    <td>Plugin on panel mount</td>
+                    <td>Sweeps the agent's Sync rows against Twilio and deletes any whose conversation is closed. Self-heals drift.</td>
+                  </tr>
+                  <tr>
+                    <td><code>/sync-token</code></td>
+                    <td>Plugin</td>
+                    <td>Mints a short-lived Twilio Access Token with a Sync grant for the agent's identity.</td>
+                  </tr>
+                  <tr>
+                    <td><code>/conversation-lifecycle</code> (protected)</td>
+                    <td>Twilio Conversations (per-conversation webhook)</td>
+                    <td>On <code>onMessageAdded</code> from the customer: spawns task via Interactions or raw TaskRouter. On <code>onDeliveryUpdated</code>: patches Sync status. On <code>onConversationStateUpdated: closed</code>: deletes Sync rows.</td>
+                  </tr>
+                  <tr>
+                    <td><code>/wa-window-pre-webhook</code></td>
+                    <td>Twilio Conversations (service pre-webhook)</td>
+                    <td>Rejects WA free-text sends outside the 24h window with HTTP 403 <code>wa_window_closed</code>. Fast-paths non-WA, inbound, template sends, and non-plugin conversations.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <p class="footer-note">
+        Reference blueprint — adapt to your account's TaskRouter workflow, Conversations service, and WhatsApp sender configuration.
+      </p>
+    </main>
+  </div>
+</body>
+</html>
